@@ -8,6 +8,7 @@ You can include the ExitIntent library in your project by adding the JavaScript 
 
 - **contentURL**: The URL to load as the exit intent content. See [intent.html](intent.html) as an example.
 - **mobileTimeout**: How long (in milliseconds) to wait on mobile before the exit intent is triggered. Default: 10,000 ms (10s).
+- **mobilePushState**: If the history should be overwritten on mobile to including a hash-based trigger (so that exit intent launches when clicking the back button). Default: true.
 - **suppressDuration**: How long (in days) to suppress future exit intent popups if the individual actively declines this intent. Default: 7.
 
 See [index.html](index.html) as an example.

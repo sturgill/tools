@@ -2,6 +2,7 @@ window.ExitIntent = function(params) {
     var defaultConfig = {
         contentURL: '',
         mobileTimeout: 10000,
+        mobilePushState: true,
         suppressDuration: 7,
     };
 
@@ -17,6 +18,7 @@ window.ExitIntent = function(params) {
     var contentID = '_ei-content';
     var closeButtonID = '_ei-close';
     var alreadyTriggered = false;
+    var mobileHash = '#_ei';
 
     var launch = function() {
         // If the exit intent suppression cookie is set, do not trigger the exit intent
@@ -37,10 +39,12 @@ window.ExitIntent = function(params) {
         document.getElementById(closeButtonID).style.display = 'block';
     };
 
-    var close = function() {
+    var close = function(cb) {
         document.getElementById(contentID).style.display = 'none';
         document.getElementById(closeButtonID).style.display = 'none';
-        suppress();
+        if (cb) {
+            cb()
+        }
     }
 
     // The suppress function will write a cookie that will prevent the
@@ -105,7 +109,7 @@ window.ExitIntent = function(params) {
     closeButton.innerHTML = '&times;';
     closeButton.id = closeButtonID;
     closeButton.addEventListener('click', function() {
-        close();
+        close(suppress);
     });
     document.body.appendChild(closeButton);
 
@@ -125,7 +129,7 @@ window.ExitIntent = function(params) {
 
     // Detect if the user is on a mobile device and if so, trigger the exit
     // intent after the timeout period
-    if (isMobile()) {
+    if (isMobile() || true) {
         // Parse the mobile timeout into an integer and fallback to the default
         // value if the value is not a valid integer
         var mobileTimeout = parseInt(config.mobileTimeout);
@@ -133,5 +137,21 @@ window.ExitIntent = function(params) {
             mobileTimeout = defaultConfig.mobileTimeout;
         }
         setTimeout(launch, mobileTimeout);
+
+        if (config.mobilePushState) {
+            // Update the hash to the mobileHash and add to browser history
+            window.location.hash = mobileHash;
+            history.pushState({}, '', '#');
+
+
+            // Create a new listener on hashchange that calls the launch function
+            window.addEventListener('hashchange', function() {
+                if (window.location.hash === mobileHash) {
+                    launch();
+                } else {
+                    close();
+                }
+            });
+        }
     }
 };
